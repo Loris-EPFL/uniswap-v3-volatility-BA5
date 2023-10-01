@@ -84,6 +84,8 @@ sb = tick_to_price(top_tick // 2)
 usd_amount_locked = liquidity * (sb - sa) / (sa * sb)
 # convert taking into account USDC decimals
 usd_amount_locked *= 1e-6
+print("liquidity", liquidity, "at ticks :", bottom_tick, top_tick, sa, sb)
+
 
 print(f"{usd_amount_locked:.0f} USDC locked")
 

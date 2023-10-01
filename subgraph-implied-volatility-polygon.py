@@ -11,7 +11,7 @@ import sys
 from datetime import datetime
 
 # default pool id is the 0.3% USDC/ETH pool
-POOL_ID = "0xc31e54c7a869b9fcbecc14363cf510d1c41fa443"
+POOL_ID = "0x45dda9cb7c25131df268515131f647d726f50608"
 
 # if passed in command line, use an alternative pool ID
 if len(sys.argv) > 1:
@@ -19,7 +19,7 @@ if len(sys.argv) > 1:
 
 NUM_DAYS = 60
 
-URL = 'https://api.thegraph.com/subgraphs/name/ianlapham/arbitrum-minimal'
+URL = 'https://api.thegraph.com/subgraphs/name/ianlapham/uniswap-v3-polygon'
 
 pool_query = """query get_pools($pool_id: ID!, $num_days: Int) {
   pools(where: {id: $pool_id}) {
