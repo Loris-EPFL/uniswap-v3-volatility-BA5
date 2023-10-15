@@ -11,13 +11,13 @@ import sys
 from datetime import datetime
 
 # default pool id is the 0.3% USDC/ETH pool
-POOL_ID = "0x85149247691df622eaf1a8bd0cafd40bc45154a9"
+POOL_ID = "0x68f5c0a2de713a54991e01858fd27a3832401849"
 
 # if passed in command line, use an alternative pool ID
 if len(sys.argv) > 1:
     POOL_ID = sys.argv[1]
 
-NUM_DAYS = 60
+NUM_DAYS = 30
 
 URL = 'https://api.thegraph.com/subgraphs/name/ianlapham/optimism-post-regenesis'
 
@@ -84,17 +84,28 @@ print("liquidity", liquidity, "at ticks :", bottom_tick, top_tick, sa, sb)
 # as if all position was USDC only
 usd_amount_locked = liquidity * (sb - sa) / (sa * sb)
 # convert taking into account USDC decimals
-usd_amount_locked *= 1e-6
+usd_amount_locked *= 1e-18
+price_quote_asset_usd = 1200
+#usd_amount_locked *= price_quote_asset_usd
+usd_amount_locked = 327600
 
 print(f"{usd_amount_locked:.0f} USDC locked")
 
 # convert from bps to units
 fee = fee_tier / (100 * 100)
+volume_total = 0
+iv_total = 0
+iters = 0
 
 for day_data in volumes[::-1]:
     volume_usd = float(day_data["volumeUSD"])
+    volume_total += volume_usd
     #print("haha", 2 * fee * math.sqrt(volume_usd / usd_amount_locked) * math.sqrt(365))
     iv = 2 * fee * math.sqrt(volume_usd / usd_amount_locked) * math.sqrt(365)
+    iv_total += iv
+    iters += 1
+    #print("iv total : ", iv_total )
     dt = datetime.fromtimestamp(int(day_data["date"]))
     day = dt.strftime("%b %d, %Y")
-    print(f"{day}: USDC volume={volume_usd:.0f} IV={iv:.3}%")
+    print(f"{day}: USDC volume={volume_usd:.0f} IV={iv:.6f}%")
+print("Total iv average overs", iters, " day is " , iv_total/iters, " %")

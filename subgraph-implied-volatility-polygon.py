@@ -11,7 +11,7 @@ import sys
 from datetime import datetime
 
 # default pool id is the 0.3% USDC/ETH pool
-POOL_ID = "0x45dda9cb7c25131df268515131f647d726f50608"
+POOL_ID = "0x50eaedb835021e4a108b7290636d62e9765cc6d7"
 
 # if passed in command line, use an alternative pool ID
 if len(sys.argv) > 1:
@@ -90,11 +90,19 @@ print(f"{usd_amount_locked:.0f} USDC locked")
 
 # convert from bps to units
 fee = fee_tier / (100 * 100)
+volume_total = 0
+iv_total = 0
+iters = 0
 
 for day_data in volumes[::-1]:
     volume_usd = float(day_data["volumeUSD"])
+    volume_total += volume_usd
     #print("haha", 2 * fee * math.sqrt(volume_usd / usd_amount_locked) * math.sqrt(365))
     iv = 2 * fee * math.sqrt(volume_usd / usd_amount_locked) * math.sqrt(365)
+    iv_total += iv
+    iters += 1
+    #print("iv total : ", iv_total )
     dt = datetime.fromtimestamp(int(day_data["date"]))
     day = dt.strftime("%b %d, %Y")
-    print(f"{day}: USDC volume={volume_usd:.0f} IV={iv:.3}%")
+    print(f"{day}: USDC volume={volume_usd:.0f} IV={iv:.6f}%")
+print("Total iv average overs", iters, " day is " , iv_total/iters, " %")

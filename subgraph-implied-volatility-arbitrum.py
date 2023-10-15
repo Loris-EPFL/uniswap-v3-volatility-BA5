@@ -11,13 +11,13 @@ import sys
 from datetime import datetime
 
 # default pool id is the 0.3% USDC/ETH pool
-POOL_ID = "0xc31e54c7a869b9fcbecc14363cf510d1c41fa443"
+POOL_ID = "0xc6962004f452be9203591991d15f6b388e09e8d0"
 
 # if passed in command line, use an alternative pool ID
 if len(sys.argv) > 1:
     POOL_ID = sys.argv[1]
 
-NUM_DAYS = 60
+NUM_DAYS = 30
 
 URL = 'https://api.thegraph.com/subgraphs/name/ianlapham/arbitrum-minimal'
 
@@ -63,7 +63,7 @@ try:
 
     pool = response['pools'][0]
     liquidity = int(pool["liquidity"])
-    current_tick = int(pool["tick"])
+    current_tick = abs(int(pool["tick"]))
     fee_tier = int(pool["feeTier"])
     tick_spacing = fee_tier_to_tick_spacing(fee_tier)
     # skip the newest day: not full day has passed yet
@@ -73,14 +73,14 @@ except Exception as ex:
     print("got exception while querying pool data:", ex)
     exit(-1)
 
-
+print("current tick : ", current_tick, "tick spacing : ", tick_spacing)
 bottom_tick = abs(current_tick // tick_spacing * tick_spacing)
 top_tick = abs(bottom_tick + tick_spacing)
 
 
-sa = tick_to_price(bottom_tick // 2)
-sb = tick_to_price(top_tick // 2)
-print("liquidity", liquidity, "at ticks :", bottom_tick, top_tick, sa, sb)
+sa = tick_to_price(bottom_tick / 2)
+sb = tick_to_price(top_tick / 2)
+print("liquidity", liquidity, "at ticks :", bottom_tick, top_tick, sa, sb,"liq factor", (sb - sa) )
 # as if all position was USDC only
 usd_amount_locked = liquidity * (sb - sa) / (sa * sb)
 # convert taking into account USDC decimals
@@ -90,11 +90,19 @@ print(f"{usd_amount_locked:.0f} USDC locked")
 
 # convert from bps to units
 fee = fee_tier / (100 * 100)
+volume_total = 0
+iv_total = 0
+iters = 0
 
 for day_data in volumes[::-1]:
     volume_usd = float(day_data["volumeUSD"])
+    volume_total += volume_usd
     #print("haha", 2 * fee * math.sqrt(volume_usd / usd_amount_locked) * math.sqrt(365))
     iv = 2 * fee * math.sqrt(volume_usd / usd_amount_locked) * math.sqrt(365)
+    iv_total += iv
+    iters += 1
+    #print("iv total : ", iv_total )
     dt = datetime.fromtimestamp(int(day_data["date"]))
     day = dt.strftime("%b %d, %Y")
-    print(f"{day}: USDC volume={volume_usd:.0f} IV={iv:.3}%")
+    print(f"{day}: USDC volume={volume_usd:.0f} IV={iv:.6f}%")
+print("Total iv average overs", iters, " day is " , iv_total/iters, " %")
