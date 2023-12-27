@@ -6,7 +6,6 @@ See the full project report at [GHOOK_Bachelor_Project_Report.pdf](https://githu
 
 For a Jupyter Notebook version of the code, see [yj's](https://github.com/uniyj) work here: https://github.com/uniyj/uni-v3-peri/tree/main/atiselsts-uniswap-v3-liquidity-math.
 
-Have questions? Feel free to contact me via email atis.elsts@gmail.com or DM (https://twitter.com/atiselsts_eth). I'm also offering paid consultations on this topic.
 
 ## Contents
 
